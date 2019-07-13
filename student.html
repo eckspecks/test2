@@ -100,6 +100,7 @@
         var kicked=  false;
         var secs =0;
         var permRounds = 10;
+        var haveIPlayed = [];
      $(function () {
          
         var socket = io();
@@ -198,6 +199,16 @@
                 
                 
               if(timeleft <= -1){
+                for(var i =0;i<opponents.length;i++){
+                    if(!haveIPlayed[i]){
+                        var opp =opponents[i];
+                        socket.emit('move',1 + "," + roomNum + "," + nick + "," + opp);
+                        coopOpp[i] =true;
+                        haveIPlayed[i] = false;
+                        
+                    }
+                }  
+                  
                   
                 socket.emit('updateBoard',"play " + roomNum);
                 clearInterval(downloadTimer);
@@ -235,6 +246,7 @@
             document.getElementById("cheat"+id[id.length-1]).style.display = "none";
             document.getElementById("coop"+id[id.length-1]).style.display = "none";
             cheatOpp[opponents.indexOf(opp)] =true;
+            haveIPlayed[opponents.indexOf(opp)] = true;
             return false;
             
         }); 
@@ -246,6 +258,8 @@
              document.getElementById("cheat"+id[id.length-1]).style.display = "none";
             document.getElementById("coop"+id[id.length-1]).style.display = "none";
             coopOpp[opponents.indexOf(opp)] =true;
+            haveIPlayed[opponents.indexOf(opp)] = true;
+
             return false;
             
         }); 
@@ -262,7 +276,6 @@
             if(nickName !== nick && oppMove.split(",")[3] !== nick){
                 return 0;
             }
-            
             
             if(nickName!==nick){
                 var oppNum = opponents.indexOf(nickName);
@@ -322,7 +335,8 @@
             oppScore=Array(opps).fill(0);
             cheatOpp = Array(opps).fill(false);
             coopOpp = Array(opps).fill(false);
-            
+            haveIPlayed = Array(opps).fill(false);
+
             
             for(var i =0; i<opponents.length;i++){
                 document.getElementById("opp"+i).innerHTML ="Opponent: " + opponents[i];

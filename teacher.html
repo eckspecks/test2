@@ -140,7 +140,11 @@
           if(!isNumeric(r) || !isNumeric(spr)){
               document.getElementById("error").innerHTML = "Options must not be numbers";
               return false;
-          }  
+          } 
+          if(r<1 || spr<1){
+              document.getElementById("error").innerHTML = "Options must not be negative or zero.";
+              return false;
+          }
           socket.emit('options',r + "," + spr + "," + teachersCode); 
           //sends the generated code to server
             
@@ -189,6 +193,16 @@
           socket.emit('restartGame',teachersCode);
           socket.emit('numberOfUsers',players +" " +teachersCode);
           socket.emit('readyToPlay',"play," + teachersCode);
+          document.getElementById("restartGameButton").style.display = "none";
+      
+           for(var i =0;i<players.length;i++){
+              for(var j = 0; j<players.length;j++){
+                  if(players[i]!==players[j]){
+                      scores[i] = (players[i] +" vs. "+ players[j] + ": 0");
+                  }
+              }
+          }      
+          
           updateScores();
         });
      });
@@ -206,8 +220,8 @@
         <h1 id="players">Players Connected:</h1>    
         <ul id="names"></ul>
         <div id="options">
-        <h1>Rounds:</h1><input id="roundNum" type="text">
-        <h1>Seconds Per Round:</h1><input id="secsPerRound" type="text">
+        <h1>Rounds:</h1><input id="roundNum" type="text" value="5">
+        <h1>Seconds Per Round:</h1><input id="secsPerRound" type="text" value="30">
         </div>
         <br>
         <div id="playGameButton"> 
