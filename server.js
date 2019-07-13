@@ -26,7 +26,10 @@ app.get("/student.html", function(req, res)
 });
 server.listen(PORT, () => console.log(`Listening on ${ PORT }`));
 const io = socketIO(server);
-
+var array = [];
+var roomnum = 0;
+var players = [];
+var moves = [];
 
 io.on('connection', function(socket){
     
