@@ -6,7 +6,6 @@ var geoip = require('geoip-lite');
 const PORT = process.env.PORT || 3000;
 const INDEX = path.join(__dirname, 'index.html');
 const app = express();
-const bcrypt = require('bcrypt');
 app.use(express.static('images'));
 app.use(express.static(path.join(__dirname, 'public')));
 const server = http.createServer(app);
@@ -427,12 +426,11 @@ socket.on('nextRound',function(e){
  var index = players[roomNum].indexOf(e.split(",")[1]);
  io.to(playerIDs[roomNum][index]).emit('round',"?");
 });
-    
 socket.on('register',function(e){
+    console.log(e);
     var user = e.split(",")[0];
     var pw = e.split(",")[1];
-    bcrypt.hash(pw, 10, function(err, hash) {
-    var maria = "INSERT INTO login(USER,PW,ELO,REP) VALUES ('"+user+"','"+hash+"',5000,0)";     
+    var maria = "INSERT INTO login(USER,PW,ELO,REP) VALUES ('"+user+"','"+pw+"',5000,0)";     
     
     pool.query(maria,function (err,rows,fields){
         if(err){
@@ -440,41 +438,22 @@ socket.on('register',function(e){
         }else{
             socket.emit('success',"s");
         }
-    });    
-        
-        
-});
-    
-   
+    });
     
 }); 
  socket.on('checkIfValid',function(e){
     var user = e.split(",")[0];
     var pw = e.split(",")[1];
-
-    var maria = "SELECT * FROM login WHERE USER ='" + user+"'";
-     
+    var maria = "SELECT * FROM login WHERE USER ='" + user + "' AND PW ='" +pw+"'";
     pool.query(maria,function (err,rows,fields){
         
         if(err){
             console.log("err");
         }else{
-
-        var hash= JSON.stringify(rows).split("\"")[7];
-        bcrypt.compare(pw, hash, function(err, res) {
-          if(res) {
-              socket.emit('loginWorked',JSON.stringify(rows));
-              console.log('worked');
-          } else {
-              socket.emit('loginWorked',"");
-          } 
-        });
+            socket.emit('loginWorked',rows);
         }
-      
-    
-});
-    });
-    
+    }); 
+});    
   socket.on('loginLeaderboard',function(e){
    var maria = "SELECT * FROM login ORDER BY ELO DESC limit 10";
         pool.query(maria,function (err,rows,fields){
